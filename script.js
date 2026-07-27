@@ -3278,7 +3278,7 @@ if (profileInsertError) {
 
 }
 
-alert("Account created successfully! Please check your email to verify your account.");
+alert("Account created successfully! You can now log in.");
 
 registerForm.reset();
 
