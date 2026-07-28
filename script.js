@@ -1050,6 +1050,8 @@ if (historyTableBody) {
 
             const id = event.target.dataset.id;
 
+console.log("VIEW NOTES ID:", id);
+
             const { data: schedule, error } = await window.db
     .from("schedules")
     .select("notes")
