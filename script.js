@@ -67,15 +67,24 @@ if (loginForm) {
 
         event.preventDefault();
 
-        const username = document.getElementById("username");
-        const password = document.getElementById("password");
+        const username =
+            document.getElementById("username");
 
-        const usernameError = document.getElementById("usernameError");
-        const passwordError = document.getElementById("passwordError");
+        const password =
+            document.getElementById("password");
 
-        const loginBtn = document.getElementById("loginBtn");
+        const usernameError =
+            document.getElementById("usernameError");
+
+        const passwordError =
+            document.getElementById("passwordError");
+
+        const loginBtn =
+            document.getElementById("loginBtn");
+
 
         // RESET
+
         username.classList.remove("error");
         password.classList.remove("error");
 
@@ -85,17 +94,18 @@ if (loginForm) {
         usernameError.textContent = "";
         passwordError.textContent = "";
 
+
         let isValid = true;
 
-        // ==========================
+
         // EMPTY USERNAME
-        // ==========================
 
         if (username.value.trim() === "") {
 
             username.classList.add("error");
 
-            usernameError.textContent = "Please enter your username.";
+            usernameError.textContent =
+                "Please enter your username.";
 
             usernameError.classList.add("show");
 
@@ -103,15 +113,15 @@ if (loginForm) {
 
         }
 
-        // ==========================
+
         // EMPTY PASSWORD
-        // ==========================
 
         if (password.value.trim() === "") {
 
             password.classList.add("error");
 
-            passwordError.textContent = "Please enter your password.";
+            passwordError.textContent =
+                "Please enter your password.";
 
             passwordError.classList.add("show");
 
@@ -119,152 +129,197 @@ if (loginForm) {
 
         }
 
+
         if (!isValid) return;
 
-// ==========================
-// USER LOGIN
-// ==========================
 
-// Hanapin muna ang email gamit ang username
 
-const inputUsername = username.value.trim();
+        /* ==========================
+           FIND USER EMAIL
+        ========================== */
 
-console.log("Input Username:", "[" + inputUsername + "]");
 
-const { data: profile, error: profileError } = await window.db
-    .from("profiles")
-    .select("email")
-    .eq("username", inputUsername);
+        const inputUsername =
+            username.value.trim();
 
-console.log("Profile:", profile);
-console.log("Error:", profileError);
 
-// Login gamit ang email
-const { data, error } = await window.db.auth.signInWithPassword({
+        const { data: profile, error: profileError } =
+            await window.db
+                .from("profiles")
+                .select("email")
+                .eq("username", inputUsername)
+                .single();
 
-    email: profile.email,
 
-    password: password.value
 
-});
+        console.log("Profile:", profile);
+        console.log("Profile Error:", profileError);
 
-if (error) {    
 
-    password.classList.add("error");
 
-    passwordError.textContent = "Incorrect password.";
+        if (profileError || !profile) {
 
-    passwordError.classList.add("show");
+            username.classList.add("error");
 
-    return;
+            usernameError.textContent =
+                "User not found.";
 
-}
+            usernameError.classList.add("show");
 
-const account = data.user;
+            return;
 
-if (error) {
+        }
 
-    password.classList.add("error");
 
-    passwordError.textContent = error.message;
 
-    passwordError.classList.add("show");
+        /* ==========================
+           SUPABASE LOGIN
+        ========================== */
 
-    return;
 
-}
+        const { data, error } =
+            await window.db.auth.signInWithPassword({
 
-/* ==========================
-   REMEMBER ME
-========================== */
+                email: profile.email,
 
-const rememberMe =
-document.getElementById("rememberMe");
+                password: password.value
 
-if(rememberMe.checked){
+            });
 
-    localStorage.setItem(
-        "rememberUsername",
-        account.username
-    );
 
-}else{
 
-    localStorage.removeItem(
-        "rememberUsername"
-    );
+        if (error) {
 
-}
+            password.classList.add("error");
 
-        // ==========================
-        // LOGIN SUCCESS
-        // ==========================
+            passwordError.textContent =
+                "Incorrect password.";
+
+            passwordError.classList.add("show");
+
+            return;
+
+        }
+
+
+
+        const account = data.user;
+
+
+
+        /* ==========================
+           REMEMBER ME
+        ========================== */
+
+
+        const rememberMe =
+            document.getElementById("rememberMe");
+
+
+        if (rememberMe.checked) {
+
+            localStorage.setItem(
+                "rememberUsername",
+                inputUsername
+            );
+
+        } else {
+
+            localStorage.removeItem(
+                "rememberUsername"
+            );
+
+        }
+
+
+
+        /* ==========================
+           LOGIN SUCCESS
+        ========================== */
+
 
         loginBtn.disabled = true;
 
         loginBtn.innerHTML =
             '<i class="fa-solid fa-spinner fa-spin"></i> Signing In...';
 
+
+
         setTimeout(async () => {
 
-    // Save current logged-in user
-localStorage.setItem(
-    "currentUser",
-    account.id
-);
 
-console.log("currentUser:", localStorage.getItem("currentUser"));
+            localStorage.setItem(
+                "currentUser",
+                account.id
+            );
 
-    salaryRecords = [];
 
-await loadSalaryYears();
+            console.log(
+                "currentUser:",
+                localStorage.getItem("currentUser")
+            );
 
-await renderSalaryReports();    
 
-    document.getElementById("loginPage").style.display = "none";
 
-document.getElementById("mainApp").style.display = "flex";
+            salaryRecords = [];
 
-loadCurrentUserProfile();
+            await loadSalaryYears();
 
-await updateGreeting();
+            await renderSalaryReports();
 
-salaryRecords = [];
 
-renderHistoryTable();
 
-renderRecentSchedule();
+            document.getElementById("loginPage").style.display =
+                "none";
 
-updateTodaySchedule();
 
-updateDashboardSummary();
+            document.getElementById("mainApp").style.display =
+                "flex";
 
-updateMonthlyOverview();
 
-const lastPage =
-    localStorage.getItem(
-        "activePage_" + account.id
-    ) || "dashboard";
 
-    showPage("dashboard");
+            loadCurrentUserProfile();
 
-/* ==========================
-   RESET LOGIN FORM
-========================== */
+            await updateGreeting();
 
-password.value = "";
 
-if(!rememberMe.checked){
 
-    username.value = "";
+            renderHistoryTable();
 
-}
+            renderRecentSchedule();
 
-loginBtn.disabled = false;
+            updateTodaySchedule();
 
-loginBtn.innerHTML = "Login";
+            updateDashboardSummary();
 
-}, 1000);
+            updateMonthlyOverview();
+
+
+
+            showPage("dashboard");
+
+
+
+            // RESET FORM
+
+            password.value = "";
+
+
+            if (!rememberMe.checked) {
+
+                username.value = "";
+
+            }
+
+
+            loginBtn.disabled = false;
+
+            loginBtn.innerHTML =
+                "Login";
+
+
+        }, 1000);
+
 
     });
 
