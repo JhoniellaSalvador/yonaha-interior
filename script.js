@@ -221,9 +221,9 @@ localStorage.setItem(
 
     salaryRecords = [];
 
-loadSalaryYears();
+await loadSalaryYears();
 
-renderSalaryReports();
+await renderSalaryReports();    
 
     document.getElementById("loginPage").style.display = "none";
 
@@ -280,14 +280,19 @@ loginBtn.innerHTML = "Login";
 
 let monthlyChart = null;
 
-async function updateMonthlyOverview() {
+async function updateMonthlyOverview(){
 
     const currentUser = localStorage.getItem("currentUser");
 
-const { data: schedules, error } = await window.db
-    .from("schedules")
-    .select("*")
-    .eq("user_id", currentUser);
+    if (!currentUser) {
+        console.log("No current user. Skip monthly overview.");
+        return;
+    }
+
+    const { data: schedules, error } = await window.db
+        .from("schedules")
+        .select("*")
+        .eq("user_id", currentUser);
 
 if (error) {
 
@@ -784,9 +789,10 @@ async function renderHistoryTable(){
 
     const currentUser = localStorage.getItem("currentUser");
 
-    console.log("renderHistoryTable currentUser:", currentUser);
-
-    if (!currentUser) return;
+    if (!currentUser) {
+        console.log("No current user. Skip history table.");
+        return;
+    }
 
     const { data: schedules, error } = await window.db
         .from("schedules")
@@ -1056,11 +1062,16 @@ async function updateTodaySchedule(){
 
     const currentUser = localStorage.getItem("currentUser");
 
-const { data: schedules, error } = await window.db
-    .from("schedules")
-    .select("*")
-    .eq("user_id", currentUser)
-    .order("date", { ascending: true });
+    if (!currentUser) {
+        console.log("No current user. Skip today schedule.");
+        return;
+    }
+
+    const { data: schedules, error } = await window.db
+        .from("schedules")
+        .select("*")
+        .eq("user_id", currentUser)
+        .order("date", { ascending: true });
 
 if (error) {
 
@@ -1186,6 +1197,11 @@ switch(todaySchedule.type){
 async function updateDashboardSummary(){
 
     const currentUser = localStorage.getItem("currentUser");
+
+    if (!currentUser) {
+        console.log("No current user. Skip dashboard summary.");
+        return;
+    }
 
     const { data: schedules, error } = await window.db
         .from("schedules")
@@ -1371,11 +1387,10 @@ function updateScheduleFields(){
 
 updateScheduleFields();
 
-/* ==========================================================
-   INITIALIZE HISTORY
-==========================================================*/
-
-resetScheduleForm();
+// Huwag mag-reset kapag hindi pa naka-login
+if (localStorage.getItem("currentUser")) {
+    resetScheduleForm();
+}
 
 /* ==========================================================
    HISTORY SEARCH
@@ -1473,11 +1488,10 @@ async function renderRecentSchedule(){
 
     const currentUser = localStorage.getItem("currentUser");
 
-console.log("RecentSchedule currentUser:", currentUser);
-
-if (!currentUser) {
-    return;
-}
+    if (!currentUser) {
+        console.log("No current user. Skip recent schedule.");
+        return;
+    }
 
     const { data: schedules, error } = await window.db
         .from("schedules")
@@ -1931,15 +1945,21 @@ async function renderSalaryReports(){
 
     const currentUser = localStorage.getItem("currentUser");
 
-const { data: salaryRecordsData, error } = await window.db
-    .from("salary_records")
-    .select("*")
-    .eq("user_id", currentUser)
-    .order("date_paid", { ascending: false });
+    if (!currentUser) {
+        console.log("No current user. Skip salary reports.");
+        return;
+    }
 
-if (error) {
+    const { data: salaryRecordsData, error } = await window.db
+        .from("salary_records")
+        .select("*")
+        .eq("user_id", currentUser)
+        .order("date_paid", { ascending: false });
 
-    console.error(error);
+    if (error) {
+
+    console.log("Salary Error:", error);
+    console.log("Current User:", currentUser);
 
     return;
 
@@ -2581,23 +2601,24 @@ document.getElementById("displayName").textContent = firstName;
 
 }
 
-async function loadCurrentUserProfile(){
-
 /* ==========================================================
    LOAD PERSONAL INFORMATION
 ========================================================== */
 
-const currentUser = localStorage.getItem("currentUser");
+ async function loadCurrentUserProfile(){
 
-if (!currentUser) {
-    return;
-}
+    const currentUser = localStorage.getItem("currentUser");
 
-const { data: currentAccount, error } = await window.db
-    .from("profiles")
-    .select("*")
-    .eq("id", currentUser)
-    .single();
+    if (!currentUser) {
+        console.log("No current user. Skip loading profile.");
+        return;
+    }
+
+    const { data: currentAccount, error } = await window.db
+        .from("profiles")
+        .select("*")
+        .eq("id", currentUser)
+        .single();
 
 if (error || !currentAccount) {
 
@@ -3309,6 +3330,8 @@ document.getElementById("loginPage").style.display = "flex";
         await window.db.auth.getSession();
 
     const session = data.session;
+
+    console.log("SESSION:", session);
 
     if (session) {
 
