@@ -784,11 +784,15 @@ async function renderHistoryTable(){
 
     const currentUser = localStorage.getItem("currentUser");
 
-const { data: schedules, error } = await window.db
-    .from("schedules")
-    .select("*")
-    .eq("user_id", currentUser)
-    .order("date", { ascending: true });
+    console.log("renderHistoryTable currentUser:", currentUser);
+
+    if (!currentUser) return;
+
+    const { data: schedules, error } = await window.db
+        .from("schedules")
+        .select("*")
+        .eq("user_id", currentUser)
+        .order("date", { ascending: true });
 
 if (error) {
 
@@ -1371,16 +1375,6 @@ updateScheduleFields();
    INITIALIZE HISTORY
 ==========================================================*/
 
-renderHistoryTable();
-
-updateTodaySchedule();
-
-renderRecentSchedule();
-
-updateDashboardSummary();
-
-updateMonthlyOverview();
-
 resetScheduleForm();
 
 /* ==========================================================
@@ -1475,15 +1469,21 @@ async function renderRecentSchedule(){
 
     const recentList = document.getElementById("recentScheduleList");
 
-    if(!recentList) return;
+    if (!recentList) return;
 
     const currentUser = localStorage.getItem("currentUser");
 
-const { data: schedules, error } = await window.db
-    .from("schedules")
-    .select("*")
-    .eq("user_id", currentUser)
-    .order("date", { ascending: false });
+console.log("RecentSchedule currentUser:", currentUser);
+
+if (!currentUser) {
+    return;
+}
+
+    const { data: schedules, error } = await window.db
+        .from("schedules")
+        .select("*")
+        .eq("user_id", currentUser)
+        .order("date", { ascending: false });
 
 if (error) {
 
@@ -2589,6 +2589,10 @@ async function loadCurrentUserProfile(){
 
 const currentUser = localStorage.getItem("currentUser");
 
+if (!currentUser) {
+    return;
+}
+
 const { data: currentAccount, error } = await window.db
     .from("profiles")
     .select("*")
@@ -2802,8 +2806,6 @@ document.documentElement.style.setProperty(
 );
 
 }
-
-loadCurrentUserProfile();
 
 /* ==========================================================
    PROFILE AVATAR
