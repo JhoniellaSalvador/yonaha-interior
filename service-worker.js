@@ -31,13 +31,19 @@ self.addEventListener("fetch", event => {
 
     event.respondWith(
 
-        caches.match(event.request)
+        fetch(event.request)
 
-        .then(response => {
+            .then(response => {
 
-            return response || fetch(event.request);
+                return response;
 
-        })
+            })
+
+            .catch(() => {
+
+                return caches.match(event.request);
+
+            })
 
     );
 
