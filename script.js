@@ -1043,29 +1043,57 @@ if (historyTableBody) {
         }
 
         /* ==========================
-           VIEW NOTES
-        ========================== */
+   VIEW NOTES
+========================== */
 
-        if(event.target.classList.contains("view-note-btn")){
+if(event.target.classList.contains("view-note-btn")){
 
-            const id = event.target.dataset.id;
+    const id = event.target.dataset.id;
 
-console.log("VIEW NOTES ID:", id);
+    console.log("VIEW NOTES CLICKED");
+    console.log("SCHEDULE ID:", id);
 
-            const { data: schedule, error } = await window.db
-    .from("schedules")
-    .select("notes")
-    .eq("id", id)
-    .single();
+    if(!id){
 
-if (error || !schedule) return;
+        console.log("No schedule ID found.");
 
-notesContent.textContent =
-    schedule.notes || "No notes available.";
+        return;
 
-            notesModal.style.display = "flex";
+    }
 
-        }
+
+    const { data: schedule, error } = await window.db
+        .from("schedules")
+        .select("notes")
+        .eq("id", id)
+        .single();
+
+
+    if(error){
+
+        console.error("VIEW NOTES ERROR:", error);
+
+        return;
+
+    }
+
+
+    if(!schedule){
+
+        console.log("No schedule found.");
+
+        return;
+
+    }
+
+
+    notesContent.textContent =
+        schedule.notes || "No notes available.";
+
+
+    notesModal.style.display = "flex";
+
+}
 
         /* ==========================
            DELETE
