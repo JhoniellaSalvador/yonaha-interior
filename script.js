@@ -1399,7 +1399,7 @@ if(target.classList.contains("view-note-btn")){
 
 if(target.classList.contains("edit-btn")){
 
-    editSchedule(event);
+    await editSchedule(event);
 
     return;
 
