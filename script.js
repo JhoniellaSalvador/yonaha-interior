@@ -126,24 +126,18 @@ if (loginForm) {
 // ==========================
 
 // Hanapin muna ang email gamit ang username
+
+const inputUsername = username.value.trim();
+
+console.log("Input Username:", "[" + inputUsername + "]");
+
 const { data: profile, error: profileError } = await window.db
     .from("profiles")
     .select("email")
-    .eq("username", username.value.trim())
-    .single();
+    .eq("username", inputUsername);
 
-
-if (profileError || !profile) {
-
-    username.classList.add("error");
-
-    usernameError.textContent = "Username not found.";
-
-    usernameError.classList.add("show");
-
-    return;
-
-}
+console.log("Profile:", profile);
+console.log("Error:", profileError);
 
 // Login gamit ang email
 const { data, error } = await window.db.auth.signInWithPassword({
@@ -154,7 +148,7 @@ const { data, error } = await window.db.auth.signInWithPassword({
 
 });
 
-if (error) {
+if (error) {    
 
     password.classList.add("error");
 
@@ -218,6 +212,8 @@ localStorage.setItem(
     "currentUser",
     account.id
 );
+
+console.log("currentUser:", localStorage.getItem("currentUser"));
 
     salaryRecords = [];
 
@@ -1943,6 +1939,8 @@ function resetSalaryForm(){
 
 async function renderSalaryReports(){
 
+    alert("renderSalaryReports v2");
+
     const currentUser = localStorage.getItem("currentUser");
 
     if (!currentUser) {
@@ -2340,7 +2338,7 @@ await renderSalaryReports();
    INITIAL LOAD
 ========================================================== */
 
-renderSalaryReports();
+// renderSalaryReports();
 
 /* ==========================================================
    SECTION 13
