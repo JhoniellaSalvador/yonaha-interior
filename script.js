@@ -1048,7 +1048,7 @@ if (historyTableBody) {
 
         if(event.target.classList.contains("view-note-btn")){
 
-            const id = Number(event.target.dataset.id);
+            const id = event.target.dataset.id;
 
             const { data: schedule, error } = await window.db
     .from("schedules")
