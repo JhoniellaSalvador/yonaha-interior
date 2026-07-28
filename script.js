@@ -1042,7 +1042,7 @@ if (historyTableBody) {
 
         }
 
-        /* ==========================
+/* ==========================
    VIEW NOTES
 ========================== */
 
@@ -1050,12 +1050,12 @@ if(event.target.classList.contains("view-note-btn")){
 
     const id = event.target.dataset.id;
 
-    console.log("VIEW NOTES CLICKED");
-    console.log("SCHEDULE ID:", id);
+    console.log("VIEW NOTES ID:", id);
+
 
     if(!id){
 
-        console.log("No schedule ID found.");
+        console.error("No schedule ID found.");
 
         return;
 
@@ -1066,12 +1066,14 @@ if(event.target.classList.contains("view-note-btn")){
         .from("schedules")
         .select("notes")
         .eq("id", id)
-        .single();
+        .maybeSingle();
 
 
     if(error){
 
-        console.error("VIEW NOTES ERROR:", error);
+        console.error("View Notes Supabase Error:", error);
+
+        alert("Unable to load notes.");
 
         return;
 
@@ -1080,7 +1082,9 @@ if(event.target.classList.contains("view-note-btn")){
 
     if(!schedule){
 
-        console.log("No schedule found.");
+        notesContent.textContent = "No notes available.";
+
+        notesModal.style.display = "flex";
 
         return;
 
