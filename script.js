@@ -1994,14 +1994,15 @@ function resetSalaryForm(){
 
 async function renderSalaryReports(){
 
-    alert("renderSalaryReports v2");
-
     const currentUser = localStorage.getItem("currentUser");
 
-    if (!currentUser) {
-        console.log("No current user. Skip salary reports.");
-        return;
-    }
+if (!currentUser || currentUser === "null" || currentUser === "undefined") {
+
+    console.log("Invalid currentUser. Skip salary reports:", currentUser);
+
+    return;
+
+}
 
     const { data: salaryRecordsData, error } = await window.db
         .from("salary_records")
@@ -2388,12 +2389,6 @@ await renderSalaryReports();
     }
 
 });
-
-/* ==========================================================
-   INITIAL LOAD
-========================================================== */
-
-// renderSalaryReports();
 
 /* ==========================================================
    SECTION 13
