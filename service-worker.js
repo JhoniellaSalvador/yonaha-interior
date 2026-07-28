@@ -1,4 +1,4 @@
-const CACHE_NAME = "yonaha-v1";
+const CACHE_NAME = "yonaha-v2";
 
 const FILES_TO_CACHE = [
     "./",
