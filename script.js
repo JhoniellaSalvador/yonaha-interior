@@ -5,6 +5,7 @@
    LOGIN JAVASCRIPT
 ==========================================================*/
 
+
 /* ==========================================================
    SHOW / HIDE PASSWORD
 ==========================================================*/
@@ -14,41 +15,75 @@ function setupPasswordToggle(toggleId, inputId){
     const toggle = document.getElementById(toggleId);
     const input = document.getElementById(inputId);
 
-    if(!toggle || !input) return;
 
-    toggle.addEventListener("click", () => {
+    if(!toggle || !input){
+
+        return;
+
+    }
+
+
+    toggle.addEventListener("click", function(){
 
         const icon = toggle.querySelector("i");
 
+
         if(input.type === "password"){
+
 
             input.type = "text";
 
-            icon.classList.remove("fa-eye");
-            icon.classList.add("fa-eye-slash");
+
+            if(icon){
+
+                icon.classList.remove("fa-eye");
+
+                icon.classList.add("fa-eye-slash");
+
+            }
+
 
         }else{
 
+
             input.type = "password";
 
-            icon.classList.remove("fa-eye-slash");
-            icon.classList.add("fa-eye");
+
+            if(icon){
+
+                icon.classList.remove("fa-eye-slash");
+
+                icon.classList.add("fa-eye");
+
+            }
+
 
         }
 
+
     });
 
+
 }
+
+
+
+/* ==========================================================
+   INITIALIZE PASSWORD TOGGLE
+==========================================================*/
+
 
 setupPasswordToggle(
     "togglePassword",
     "password"
 );
 
+
 setupPasswordToggle(
     "toggleRegisterPassword",
     "registerPassword"
 );
+
 
 setupPasswordToggle(
     "toggleRegisterConfirmPassword",
@@ -59,11 +94,13 @@ setupPasswordToggle(
    LOGIN FORM
 ==========================================================*/
 
+
 const loginForm = document.getElementById("loginForm");
 
-if (loginForm) {
 
-    loginForm.addEventListener("submit", async function (event) {
+if(loginForm){
+
+    loginForm.addEventListener("submit", async function(event){
 
         event.preventDefault();
 
@@ -82,66 +119,93 @@ if (loginForm) {
         const loginBtn =
             document.getElementById("loginBtn");
 
+        if(!username || !password){
 
-        // RESET
+            return;
+
+        }
+
+        /* ==========================
+           RESET ERRORS
+        ========================== */
 
         username.classList.remove("error");
+
         password.classList.remove("error");
 
-        usernameError.classList.remove("show");
-        passwordError.classList.remove("show");
 
-        usernameError.textContent = "";
-        passwordError.textContent = "";
+        if(usernameError){
 
+            usernameError.classList.remove("show");
+
+            usernameError.textContent = "";
+
+        }
+
+        if(passwordError){
+
+            passwordError.classList.remove("show");
+
+            passwordError.textContent = "";
+
+        }
 
         let isValid = true;
 
+        /* ==========================
+           CHECK USERNAME
+        ========================== */
 
-        // EMPTY USERNAME
-
-        if (username.value.trim() === "") {
+        if(username.value.trim() === ""){
 
             username.classList.add("error");
 
-            usernameError.textContent =
-                "Please enter your username.";
+            if(usernameError){
 
-            usernameError.classList.add("show");
+                usernameError.textContent =
+                    "Please enter your username.";
+
+                usernameError.classList.add("show");
+
+            }
 
             isValid = false;
 
         }
 
+        /* ==========================
+           CHECK PASSWORD
+        ========================== */
 
-        // EMPTY PASSWORD
-
-        if (password.value.trim() === "") {
+        if(password.value.trim() === ""){
 
             password.classList.add("error");
 
-            passwordError.textContent =
-                "Please enter your password.";
+            if(passwordError){
 
-            passwordError.classList.add("show");
+                passwordError.textContent =
+                    "Please enter your password.";
+
+                passwordError.classList.add("show");
+
+            }
 
             isValid = false;
 
         }
 
+        if(!isValid){
 
-        if (!isValid) return;
+            return;
 
-
+        }
 
         /* ==========================
            FIND USER EMAIL
         ========================== */
 
-
         const inputUsername =
             username.value.trim();
-
 
         const { data: profile, error: profileError } =
             await window.db
@@ -150,32 +214,26 @@ if (loginForm) {
                 .eq("username", inputUsername)
                 .single();
 
-
-
-        console.log("Profile:", profile);
-        console.log("Profile Error:", profileError);
-
-
-
-        if (profileError || !profile) {
+        if(profileError || !profile){
 
             username.classList.add("error");
 
-            usernameError.textContent =
-                "User not found.";
+            if(usernameError){
 
-            usernameError.classList.add("show");
+                usernameError.textContent =
+                    "User not found.";
+
+                usernameError.classList.add("show");
+
+            }
 
             return;
 
         }
 
-
-
         /* ==========================
-           SUPABASE LOGIN
+           SUPABASE AUTH LOGIN
         ========================== */
-
 
         const { data, error } =
             await window.db.auth.signInWithPassword({
@@ -186,44 +244,40 @@ if (loginForm) {
 
             });
 
-
-
-        if (error) {
+        if(error){
 
             password.classList.add("error");
 
-            passwordError.textContent =
-                "Incorrect password.";
+            if(passwordError){
 
-            passwordError.classList.add("show");
+                passwordError.textContent =
+                    "Incorrect password.";
+
+                passwordError.classList.add("show");
+
+            }
 
             return;
 
         }
 
-
-
         const account = data.user;
-
-
 
         /* ==========================
            REMEMBER ME
         ========================== */
 
-
         const rememberMe =
             document.getElementById("rememberMe");
 
-
-        if (rememberMe.checked) {
+        if(rememberMe && rememberMe.checked){
 
             localStorage.setItem(
                 "rememberUsername",
                 inputUsername
             );
 
-        } else {
+        }else{
 
             localStorage.removeItem(
                 "rememberUsername"
@@ -231,95 +285,87 @@ if (loginForm) {
 
         }
 
+/* ==========================
+   LOGIN SUCCESS
+==========================*/
 
+if(loginBtn){
 
-        /* ==========================
-           LOGIN SUCCESS
-        ========================== */
+    loginBtn.disabled = true;
 
+    loginBtn.innerHTML =
+        '<i class="fa-solid fa-spinner fa-spin"></i> Signing In...';
 
-        loginBtn.disabled = true;
+}
 
-        loginBtn.innerHTML =
-            '<i class="fa-solid fa-spinner fa-spin"></i> Signing In...';
+/* ==========================
+   SAVE CURRENT USER
+==========================*/
 
+localStorage.setItem(
+    "currentUser",
+    account.id
+);
 
+/* ==========================
+   LOAD USER DATA
+==========================*/
 
-        setTimeout(async () => {
+salaryRecords = [];
 
+await loadCurrentUserProfile();
 
-            localStorage.setItem(
-                "currentUser",
-                account.id
-            );
+await updateGreeting();
 
+renderHistoryTable();
 
-            console.log(
-                "currentUser:",
-                localStorage.getItem("currentUser")
-            );
+renderRecentSchedule();
 
+updateTodaySchedule();
 
+updateDashboardSummary();
 
-            salaryRecords = [];
+updateMonthlyOverview();
 
-            await loadSalaryYears();
+/* ==========================
+   SHOW MAIN APP
+==========================*/
 
-            await renderSalaryReports();
+document.getElementById("loginPage").style.display =
+    "none";
 
+document.getElementById("registerPage").style.display =
+    "none";
 
+document.getElementById("mainApp").style.display =
+    "flex";
 
-            document.getElementById("loginPage").style.display =
-                "none";
+showPage("dashboard");
 
+/* ==========================
+   RESET LOGIN FORM
+==========================*/
 
-            document.getElementById("mainApp").style.display =
-                "flex";
+password.value = "";
 
+if(!rememberMe || !rememberMe.checked){
 
+    username.value = "";
 
-            loadCurrentUserProfile();
+}
 
-            await updateGreeting();
+/* ==========================
+   ENABLE BUTTON
+==========================*/
 
+if(loginBtn){
 
+    loginBtn.disabled = false;
 
-            renderHistoryTable();
+    loginBtn.innerHTML =
+        "Login";
 
-            renderRecentSchedule();
-
-            updateTodaySchedule();
-
-            updateDashboardSummary();
-
-            updateMonthlyOverview();
-
-
-
-            showPage("dashboard");
-
-
-
-            // RESET FORM
-
-            password.value = "";
-
-
-            if (!rememberMe.checked) {
-
-                username.value = "";
-
-            }
-
-
-            loginBtn.disabled = false;
-
-            loginBtn.innerHTML =
-                "Login";
-
-
-        }, 1000);
-
+}
 
     });
 
@@ -333,73 +379,116 @@ let monthlyChart = null;
 
 async function updateMonthlyOverview(){
 
-    const currentUser = localStorage.getItem("currentUser");
+    const currentUser =
+        localStorage.getItem("currentUser");
 
-    if (!currentUser) {
-        console.log("No current user. Skip monthly overview.");
+    if(!currentUser){
+
         return;
+
     }
 
-    const { data: schedules, error } = await window.db
-        .from("schedules")
-        .select("*")
-        .eq("user_id", currentUser);
+    const { data: schedules, error } =
+        await window.db
+            .from("schedules")
+            .select("schedule_type")
+            .eq("user_id", currentUser);
 
-if (error) {
+    if(error){
 
-    console.error(error);
+        console.error(
+            "Monthly Overview Error:",
+            error
+        );
 
-    return;
+        return;
 
-}
-
-schedules.forEach(schedule => {
-
-    schedule.type = schedule.schedule_type;
-
-});
+    }
 
     let work = 0;
+
     let yasumi = 0;
+
     let holiday = 0;
 
     schedules.forEach(schedule => {
 
-        if (!schedule.type) return;
+        const type =
+            schedule.schedule_type;
 
-        switch (schedule.type.toLowerCase()) {
+        if(!type) return;
+
+        switch(type.toLowerCase()){
 
             case "work":
+
                 work++;
+
                 break;
 
             case "yasumi":
+
                 yasumi++;
+
                 break;
 
             case "holiday":
+
                 holiday++;
+
                 break;
 
         }
 
     });
 
-    // Update Legend
+    /* ==========================
+       UPDATE LEGEND
+    ==========================*/
 
-    const workLegend = document.getElementById("legendWork");
-    const yasumiLegend = document.getElementById("legendYasumi");
-    const holidayLegend = document.getElementById("legendHoliday");
+    const workLegend =
+        document.getElementById("legendWork");
 
-    if(workLegend) workLegend.textContent = work;
-    if(yasumiLegend) yasumiLegend.textContent = yasumi;
-    if(holidayLegend) holidayLegend.textContent = holiday;
+    const yasumiLegend =
+        document.getElementById("legendYasumi");
 
-    const canvas = document.getElementById("monthlyChart");
+    const holidayLegend =
+        document.getElementById("legendHoliday");
 
-    if(!canvas) return;
+    if(workLegend){
 
-    const ctx = canvas.getContext("2d");
+        workLegend.textContent = work;
+
+    }
+
+    if(yasumiLegend){
+
+        yasumiLegend.textContent = yasumi;
+
+    }
+
+    if(holidayLegend){
+
+        holidayLegend.textContent = holiday;
+
+    }
+
+    /* ==========================
+       CHART
+    ==========================*/
+
+    const canvas =
+        document.getElementById("monthlyChart");
+
+
+    if(!canvas || typeof Chart === "undefined"){
+
+        return;
+
+    }
+
+    const ctx =
+        canvas.getContext("2d");
 
     if(monthlyChart){
 
@@ -428,7 +517,14 @@ schedules.forEach(schedule => {
 
                     label:"Work",
 
-                    data:[work,work,work,work],
+                    data:[
+
+                        work,
+                        work,
+                        work,
+                        work
+
+                    ],
 
                     backgroundColor:"#27AE60",
 
@@ -440,7 +536,14 @@ schedules.forEach(schedule => {
 
                     label:"Yasumi",
 
-                    data:[yasumi,yasumi,yasumi,yasumi],
+                    data:[
+
+                        yasumi,
+                        yasumi,
+                        yasumi,
+                        yasumi
+
+                    ],
 
                     backgroundColor:"#F4C542",
 
@@ -452,12 +555,18 @@ schedules.forEach(schedule => {
 
                     label:"Holiday",
 
-                    data:[holiday,holiday,holiday,holiday],
+                    data:[
+
+                        holiday,
+                        holiday,
+                        holiday,
+                        holiday
+
+                    ],
 
                     backgroundColor:"#E74C3C",
 
                     borderRadius:6
-
                 }
 
             ]
@@ -473,7 +582,9 @@ schedules.forEach(schedule => {
             plugins:{
 
                 legend:{
+
                     display:false
+
                 }
 
             },
@@ -483,11 +594,15 @@ schedules.forEach(schedule => {
                 x:{
 
                     grid:{
+
                         display:false
+
                     },
 
                     ticks:{
+
                         color:"#FFFFFF"
+
                     }
 
                 },
@@ -497,12 +612,17 @@ schedules.forEach(schedule => {
                     beginAtZero:true,
 
                     ticks:{
+
                         color:"#FFFFFF",
+
                         stepSize:1
+
                     },
 
                     grid:{
+
                         color:"rgba(255,255,255,.08)"
+
                     }
 
                 }
@@ -520,80 +640,156 @@ schedules.forEach(schedule => {
 ==========================================================*/
 
 const pages = {
+
     dashboard: document.getElementById("dashboardPage"),
+
     schedule: document.getElementById("schedulePage"),
+
     history: document.getElementById("historyPage"),
+
     salary: document.getElementById("salaryPage"),
+
     reports: document.getElementById("reportsPage"),
+
     profile: document.getElementById("profilePage"),
+
     settings: document.getElementById("settingsPage")
+
 };
 
 const navs = {
+
     dashboard: document.getElementById("dashboardNav"),
+
     schedule: document.getElementById("scheduleNav"),
+
     history: document.getElementById("historyNav"),
+
     salary: document.getElementById("salaryNav"),
+
     reports: document.getElementById("reportsNav"),
+
     profile: document.getElementById("profileNav"),
+
     settings: document.getElementById("settingsNav"),
+
     logout: document.getElementById("logoutNav")
+
 };
 
 function showPage(pageName){
 
+    /* ==========================
+       HIDE ALL PAGES
+    ========================== */
+
     Object.values(pages).forEach(page => {
 
-        if(page) page.style.display = "none";
+        if(page){
+
+            page.style.display = "none";
+
+        }
 
     });
+
+    /* ==========================
+       REMOVE ACTIVE NAV
+    ========================== */
 
     Object.values(navs).forEach(nav => {
 
-        if(nav) nav.classList.remove("active");
+        if(nav){
+
+            nav.classList.remove("active");
+
+        }
 
     });
 
-    if(pages[pageName]){
+    /* ==========================
+       SHOW SELECTED PAGE
+    ========================== */
 
-    pages[pageName].style.display = "block";
+    const selectedPage =
+        pages[pageName];
 
-    if(pageName === "dashboard"){
-        updateMonthlyOverview();
+    if(selectedPage){
+
+        selectedPage.style.display =
+            "block";
+
+        if(pageName === "dashboard"){
+
+            updateMonthlyOverview();
+
+        }
+
+    }
+
+    /* ==========================
+       ACTIVE NAV
+    ========================== */
+
+    const selectedNav =
+        navs[pageName];
+
+    if(selectedNav){
+
+        selectedNav.classList.add("active");
+
+    }
+
+    /* ==========================
+       SAVE LAST PAGE
+    ========================== */
+
+    const activeUser =
+        localStorage.getItem("currentUser");
+
+    if(activeUser){
+
+        localStorage.setItem(
+
+            "activePage_" + activeUser,
+
+            pageName
+
+        );
+
     }
 
 }
 
-    if(navs[pageName]){
-
-        navs[pageName].classList.add("active");
-
-    }
-
-    const activeUser = localStorage.getItem("currentUser");
-
-if(activeUser){
-
-    localStorage.setItem(
-        "activePage_" + activeUser,
-        pageName
-    );
-
-}
-
-}
+/* ==========================
+   NAVIGATION CLICK EVENTS
+==========================*/
 
 Object.keys(navs).forEach(page => {
 
-    if(!navs[page]) return;
+    if(page === "logout"){
 
-    if(page==="logout") return;
+        return;
 
-    navs[page].addEventListener("click",()=>{
+    }
 
-        showPage(page);
+    const nav =
+        navs[page];
 
-    });
+    if(!nav){
+
+        return;
+
+    }
+
+    nav.addEventListener(
+        "click",
+        function(){
+
+            showPage(page);
+
+        }
+    );
 
 });
 
@@ -604,29 +800,51 @@ Object.keys(navs).forEach(page => {
 
 function updateDateTime(){
 
-    const now = new Date();
+    const dateElement =
+        document.getElementById("currentDate");
 
-    const options = {
+    const timeElement =
+        document.getElementById("liveTime");
 
-        weekday: "long",
-        year: "numeric",
-        month: "long",
-        day: "numeric"
+    const now =
+        new Date();
 
-    };
+    if(dateElement){
 
-    document.getElementById("currentDate").textContent =
-        now.toLocaleDateString("en-US", options);
+        dateElement.textContent =
+            now.toLocaleDateString(
+                "en-US",
+                {
 
-    document.getElementById("liveTime").textContent =
-        now.toLocaleTimeString("en-US");
+                    weekday:"long",
+
+                    year:"numeric",
+
+                    month:"long",
+
+                    day:"numeric"
+
+                }
+            );
+    }
+
+    if(timeElement){
+
+        timeElement.textContent =
+            now.toLocaleTimeString(
+                "en-US"
+            );
+
+    }
 
 }
 
 updateDateTime();
 
-setInterval(updateDateTime, 1000);
-
+setInterval(
+    updateDateTime,
+    1000
+);
 
 /* ==========================================================
    EDIT MODE
@@ -639,191 +857,270 @@ let editingScheduleId = null;
    SAVE SCHEDULE
 ==========================================================*/
 
-const scheduleForm = document.getElementById("scheduleForm");
+const scheduleForm =
+    document.getElementById("scheduleForm");
 
-if (scheduleForm) {
+if(scheduleForm){
 
-    scheduleForm.addEventListener("submit", function (e) {
+    scheduleForm.addEventListener(
+        "submit",
+        function(e){
 
-        e.preventDefault();
+            e.preventDefault();
 
-        saveSchedule();
+            saveSchedule();
 
-    });
+        }
+    );
 
 }
 
-async function saveSchedule() {
+async function saveSchedule(){
+
+    const currentUser =
+        localStorage.getItem("currentUser");
+
+    if(!currentUser){
+
+        alert("No user logged in.");
+
+        return;
+
+    }
 
     const schedule = {
 
-        id: Date.now(),
+        date:
+            document.getElementById("scheduleDate").value,
 
-        date: document.getElementById("scheduleDate").value,
+        location:
+            document.getElementById("location").value.trim(),
 
-        location: document.getElementById("location").value,
+        building:
+            document.getElementById("building").value.trim(),
 
-        building: document.getElementById("building").value,
+        engineer:
+            document.getElementById("scheduleEngineer").value.trim(),
 
-        engineer: document.getElementById("scheduleEngineer").value,
+        geneCon:
+            document.getElementById("scheduleGeneCon").value.trim(),
 
-        geneCon: document.getElementById("scheduleGeneCon").value,
+        flooringType:
+            document.getElementById("scheduleFlooringType").value.trim(),
 
-        flooringType: document.getElementById("scheduleFlooringType").value,
+        type:
+            document.getElementById("scheduleType").value,
 
-        type: document.getElementById("scheduleType").value,
+        timeIn:
+            document.getElementById("timeIn").value,
 
-        timeIn: document.getElementById("timeIn").value,
+        timeOut:
+            document.getElementById("timeOut").value,
 
-        timeOut: document.getElementById("timeOut").value,
-
-        notes: document.getElementById("scheduleNotes").value,
+        notes:
+            document.getElementById("scheduleNotes").value.trim()
 
     };
 
-    /* VALIDATION */
+    /* ==========================
+       VALIDATION
+    ==========================*/
 
-if(!schedule.date){
+    if(!schedule.date){
 
-    alert("Please select a date.");
-
-    return;
-
-}
-
-if(!schedule.type){
-
-    alert("Please select a schedule type.");
-
-    return;
-
-}
-
-/* REQUIRED ONLY FOR WORK */
-
-if(schedule.type === "Work"){
-
-    if(
-
-        !schedule.location ||
-
-        !schedule.building ||
-
-        !schedule.engineer ||
-
-        !schedule.geneCon ||
-
-        !schedule.flooringType ||
-
-        !schedule.timeIn ||
-
-        !schedule.timeOut
-
-    ){
-
-        alert("Please complete all work details.");
+        alert("Please select a date.");
 
         return;
 
     }
 
-}
+    if(!schedule.type){
 
-    /* LOAD OLD DATA */
-
-    const currentUser = localStorage.getItem("currentUser");
-
-   /* SAVE OR UPDATE */
-
-const isEditing = editingScheduleId !== null;
-
-if (isEditing) {
-
-    const { error } = await window.db
-        .from("schedules")
-        .update({
-            date: schedule.date,
-            location: schedule.location,
-            building: schedule.building,
-            engineer: schedule.engineer,
-            gene_con: schedule.geneCon,
-            flooring_type: schedule.flooringType,
-            schedule_type: schedule.type,
-            time_in: schedule.timeIn,
-            time_out: schedule.timeOut,
-            notes: schedule.notes
-        })
-        .eq("id", editingScheduleId);
-
-    if (error) {
-
-        alert(error.message);
+        alert("Please select a schedule type.");
 
         return;
 
     }
 
-    editingScheduleId = null;
+    if(schedule.type === "Work"){
 
-} else {
+        if(
 
-    const { error } = await window.db
-        .from("schedules")
-        .insert({
-            user_id: currentUser,
-            date: schedule.date,
-            location: schedule.location,
-            building: schedule.building,
-            engineer: schedule.engineer,
-            gene_con: schedule.geneCon,
-            flooring_type: schedule.flooringType,
-            schedule_type: schedule.type,
-            time_in: schedule.timeIn,
-            time_out: schedule.timeOut,
-            notes: schedule.notes
-        });
+            !schedule.location ||
 
-    if (error) {
+            !schedule.building ||
 
-        alert(error.message);
+            !schedule.engineer ||
 
-        return;
+            !schedule.geneCon ||
+
+            !schedule.flooringType ||
+
+            !schedule.timeIn ||
+
+            !schedule.timeOut
+
+        ){
+
+            alert(
+                "Please complete all work details."
+            );
+
+            return;
+
+        }
+
+    }
+
+    /* ==========================
+       UPDATE EXISTING
+    ==========================*/
+
+    if(editingScheduleId){
+
+        const { error } =
+            await window.db
+                .from("schedules")
+                .update({
+
+                    date: schedule.date,
+
+                    location: schedule.location,
+
+                    building: schedule.building,
+
+                    engineer: schedule.engineer,
+
+                    gene_con: schedule.geneCon,
+
+                    flooring_type: schedule.flooringType,
+
+                    schedule_type: schedule.type,
+
+                    time_in: schedule.timeIn,
+
+                    time_out: schedule.timeOut,
+
+                    notes: schedule.notes
+
+                })
+                .eq(
+                    "id",
+                    editingScheduleId
+                );
+
+        if(error){
+
+            console.error(
+                "Update Schedule Error:",
+                error
+            );
+
+            alert(error.message);
+
+            return;
+
+        }
+
+        editingScheduleId = null;
+
+        alert(
+            "Schedule updated successfully!"
+        );
+
+    }
+
+    /* ==========================
+       INSERT NEW
+    ==========================*/
+
+    else {
+
+        const { error } =
+            await window.db
+                .from("schedules")
+                .insert({
+
+                    user_id: currentUser,
+
+                    date: schedule.date,
+
+                    location: schedule.location,
+
+                    building: schedule.building,
+
+                    engineer: schedule.engineer,
+
+                    gene_con: schedule.geneCon,
+
+                    flooring_type: schedule.flooringType,
+
+                    schedule_type: schedule.type,
+
+                    time_in: schedule.timeIn,
+
+                    time_out: schedule.timeOut,
+
+                    notes: schedule.notes
+
+                });
+
+        if(error){
+
+            console.error(
+                "Insert Schedule Error:",
+                error
+            );
+
+            alert(error.message);
+
+            return;
+
+        }
+
+        alert(
+            "Schedule saved successfully!"
+        );
+
+    }
+
+    /* ==========================
+       REFRESH DATA
+    ==========================*/
+
+    await renderHistoryTable();
+
+    updateTodaySchedule();
+
+    renderRecentSchedule();
+
+    updateDashboardSummary();
+
+    updateMonthlyOverview();
+
+    resetScheduleForm();
+
+    if(!editingScheduleId){
+
+        showPage("history");
 
     }
 
 }
 
-    alert(isEditing ? "Schedule updated successfully!" : "Schedule saved successfully!");
+const resetScheduleBtn =
+    document.getElementById("resetScheduleBtn");
 
-renderHistoryTable();
+if(resetScheduleBtn){
 
-updateTodaySchedule();
+    resetScheduleBtn.addEventListener(
+        "click",
+        function(){
 
-renderRecentSchedule();
+            resetScheduleForm();
 
-updateDashboardSummary();
-
-updateMonthlyOverview();
-
-resetScheduleForm();
-
-if(isEditing){
-
-    showPage("history");
-
-}
-
-}
-
-const resetScheduleBtn = document.getElementById("resetScheduleBtn");
-
-if (resetScheduleBtn) {
-
-    resetScheduleBtn.addEventListener("click", () => {
-
-        resetScheduleForm();
-
-    });
+        }
+    );
 
 }
 
@@ -836,12 +1133,11 @@ async function renderHistoryTable(){
 
     const historyTableBody = document.getElementById("historyTableBody");
 
-    if (!historyTableBody) return;
+    if(!historyTableBody) return;
 
     const currentUser = localStorage.getItem("currentUser");
 
-    if (!currentUser) {
-        console.log("No current user. Skip history table.");
+    if(!currentUser){
         return;
     }
 
@@ -849,93 +1145,115 @@ async function renderHistoryTable(){
         .from("schedules")
         .select("*")
         .eq("user_id", currentUser)
-        .order("date", { ascending: true });
+        .order("date", { ascending:true });
 
-if (error) {
+    if(error){
+        console.error(error);
+        return;
+    }
 
-    console.error(error);
+    schedules.forEach(schedule=>{
 
-    return;
+        schedule.geneCon = schedule.gene_con;
+        schedule.flooringType = schedule.flooring_type;
+        schedule.type = schedule.schedule_type;
+        schedule.timeIn = schedule.time_in;
+        schedule.timeOut = schedule.time_out;
 
-}
+    });
 
-schedules.forEach(schedule => {
-
-    schedule.geneCon = schedule.gene_con;
-
-    schedule.flooringType = schedule.flooring_type;
-
-    schedule.type = schedule.schedule_type;
-
-    schedule.timeIn = schedule.time_in;
-
-    schedule.timeOut = schedule.time_out;
-
-});
 
     const search = document
-    .getElementById("historySearch")
-    .value
-    .toLowerCase();
+        .getElementById("historySearch")
+        ?.value
+        .toLowerCase() || "";
 
-    const selectedMonth = document.getElementById("historyMonth").value;
-    const selectedYear = document.getElementById("historyYear").value;
-    const selectedStatus = document.getElementById("historyStatus").value;
+
+    const selectedMonth =
+        document.getElementById("historyMonth")?.value || "all";
+
+
+    const selectedYear =
+        document.getElementById("historyYear")?.value || "all";
+
+
+    const selectedStatus =
+        document.getElementById("historyStatus")?.value || "all";
+
 
     historyTableBody.innerHTML = "";
 
-    const filteredSchedules = schedules.filter(schedule => {
 
-    const scheduleMonth = String(
-        new Date(schedule.date).getMonth() + 1
-    );
-
-    const scheduleYear = String(
-        new Date(schedule.date).getFullYear()
-    );
-
-    const matchSearch =
-
-    (schedule.date || "").toLowerCase().includes(search) ||
-
-    (schedule.location || "").toLowerCase().includes(search) ||
-
-    (schedule.building || "").toLowerCase().includes(search) ||
-
-    (schedule.engineer || "").toLowerCase().includes(search) ||
-
-    (schedule.geneCon || "").toLowerCase().includes(search) ||
-
-    (schedule.flooringType || "").toLowerCase().includes(search);
-
-    const matchMonth =
-
-        selectedMonth === "all" ||
-
-        scheduleMonth === selectedMonth;
-
-    const matchYear =
-
-        selectedYear === "all" ||
-
-        scheduleYear === selectedYear;
-
-    const matchStatus =
-
-    selectedStatus === "all" ||
-
-    schedule.type.toLowerCase() === selectedStatus;
-
-    return matchSearch && matchMonth && matchYear && matchStatus;
-
-});
+    const filteredSchedules = schedules.filter(schedule=>{
 
 
-   const displaySchedules = search
-    ? filteredSchedules
-    : filteredSchedules.slice(-13).reverse();
+        const date = new Date(schedule.date);
 
-displaySchedules.forEach(schedule=>{
+
+        const month =
+            String(date.getMonth()+1);
+
+
+        const year =
+            String(date.getFullYear());
+
+
+
+        const matchSearch =
+
+            (schedule.date || "").toLowerCase().includes(search) ||
+
+            (schedule.location || "").toLowerCase().includes(search) ||
+
+            (schedule.building || "").toLowerCase().includes(search) ||
+
+            (schedule.engineer || "").toLowerCase().includes(search) ||
+
+            (schedule.geneCon || "").toLowerCase().includes(search) ||
+
+            (schedule.flooringType || "").toLowerCase().includes(search);
+
+
+
+        const matchMonth =
+            selectedMonth === "all" ||
+            month === selectedMonth;
+
+
+
+        const matchYear =
+            selectedYear === "all" ||
+            year === selectedYear;
+
+
+
+        const matchStatus =
+            selectedStatus === "all" ||
+            schedule.type?.toLowerCase() === selectedStatus;
+
+
+
+        return matchSearch && matchMonth && matchYear && matchStatus;
+
+
+    });
+
+
+
+    const displaySchedules = search
+        ? filteredSchedules
+        : filteredSchedules.slice(-13).reverse();
+
+
+
+    displaySchedules.forEach(schedule=>{
+
+        console.log(
+    "RENDER ID:",
+    schedule.id,
+    typeof schedule.id
+);
+
 
         historyTableBody.innerHTML += `
 
@@ -943,25 +1261,15 @@ displaySchedules.forEach(schedule=>{
 
             <td>${schedule.date}</td>
 
-           <td title="${schedule.location || ""}">
-    ${schedule.location || "—"}
-</td>
+            <td>${schedule.location || "—"}</td>
 
-            <td title="${schedule.building || ""}">
-    ${schedule.building || "—"}
-</td>
+            <td>${schedule.building || "—"}</td>
 
-            <td title="${schedule.engineer || ""}">
-    ${schedule.engineer || "—"}
-</td>
+            <td>${schedule.engineer || "—"}</td>
 
-            <td title="${schedule.geneCon || ""}">
-    ${schedule.geneCon || "—"}
-</td>
+            <td>${schedule.geneCon || "—"}</td>
 
-            <td title="${schedule.flooringType || ""}">
-    ${schedule.flooringType || "—"}
-</td>
+            <td>${schedule.flooringType || "—"}</td>
 
             <td>${schedule.type || "—"}</td>
 
@@ -971,120 +1279,103 @@ displaySchedules.forEach(schedule=>{
 
             <td>
 
-    ${
-        schedule.notes
-        ?
-        `
-        <span
-    class="view-note-btn"
-    data-id="${schedule.id}">
+            ${
+                schedule.notes
+                ?
+                `
+                <span
+                class="view-note-btn"
+                data-id="${schedule.id}">
+                View
+                </span>
+                `
+                :
+                "—"
+            }
 
-    View
-
-</span>
-        `
-        :
-        "—"
-    }
-
-</td>
+            </td>
 
             <td>
 
-<div class="history-actions">
+            <div class="history-actions">
 
-<span
-class="edit-btn"
-data-id="${schedule.id}">
+            <span
+            class="edit-btn"
+            data-id="${schedule.id}">
+            Edit
+            </span>
 
- Edit
 
-</span>
+            <span
+            class="delete-btn"
+            data-id="${schedule.id}">
+            Delete
+            </span>
 
-<span
-class="delete-btn"
-data-id="${schedule.id}">
+            </div>
 
- Delete
-
-</span>
-
-</div>
-
-</td>
+            </td>
 
         </tr>
 
         `;
 
+
     });
+
 
 }
 
 /* ==========================================================
    HISTORY TABLE EVENTS
-==========================================================*/
+========================================================== */
 
-const historyTableBody = document.getElementById("historyTableBody");
-
-if (historyTableBody) {
-
-    historyTableBody.addEventListener("click", async function(event){
+document.addEventListener("click", async function(event){
 
 
-        /* ==========================
-           EDIT
-        ========================== */
+    const target = event.target.closest(
+        ".view-note-btn, .edit-btn, .delete-btn"
+    );
 
-        if(event.target.classList.contains("edit-btn")){
 
-            editSchedule(event);
+    if(!target) return;
 
-        }
+
+
+    const id = target.dataset.id;
+
+
+    if(!id){
+
+        console.log("No schedule ID found.");
+
+        return;
+
+    }
+
+
 
 /* ==========================
    VIEW NOTES
 ========================== */
 
-if(event.target.classList.contains("view-note-btn")){
-
-    const id = event.target.dataset.id;
+if(target.classList.contains("view-note-btn")){
 
     console.log("VIEW NOTES ID:", id);
-
-
-    if(!id){
-
-        console.error("No schedule ID found.");
-
-        return;
-
-    }
-
 
     const { data: schedule, error } = await window.db
         .from("schedules")
         .select("notes")
         .eq("id", id)
-        .maybeSingle();
+        .single();
 
 
     if(error){
 
-        console.error("View Notes Supabase Error:", error);
-
-        alert("Unable to load notes.");
-
-        return;
-
-    }
-
-
-    if(!schedule){
-
-        notesContent.textContent = "No notes available.";
-
-        notesModal.style.display = "flex";
+        console.error(
+            "View Notes Error:",
+            error
+        );
 
         return;
 
@@ -1097,46 +1388,156 @@ if(event.target.classList.contains("view-note-btn")){
 
     notesModal.style.display = "flex";
 
-}
-
-        /* ==========================
-           DELETE
-        ========================== */
-
-        if(event.target.classList.contains("delete-btn")){
-
-            const id = Number(event.target.dataset.id);
-
-            const confirmDelete = confirm(
-                "Are you sure you want to delete this schedule?"
-            );
-
-            if(!confirmDelete) return;
-
-           const { error } = await window.db
-    .from("schedules")
-    .delete()
-    .eq("id", id);
-
-if (error) {
-
-    alert(error.message);
 
     return;
 
 }
 
-await renderHistoryTable();
-await updateTodaySchedule();
-await renderRecentSchedule();
-await updateDashboardSummary();
-await updateMonthlyOverview();
+    /* ==========================
+       EDIT SCHEDULE
+    ========================== */
+
+    if(target.classList.contains("edit-btn")){
+
+
+        const { data: schedule, error } = await window.db
+            .from("schedules")
+            .select("*")
+            .eq("id", id)
+            .single();
+
+
+
+        if(error){
+
+            console.error(
+                "Edit Error:",
+                error
+            );
+
+            return;
 
         }
 
-    });
 
-}
+
+        editingScheduleId = schedule.id;
+
+
+
+        dateInput.value =
+            schedule.date || "";
+
+
+        locationInput.value =
+            schedule.location || "";
+
+
+        buildingInput.value =
+            schedule.building || "";
+
+
+        engineerInput.value =
+            schedule.engineer || "";
+
+
+        geneConInput.value =
+            schedule.gene_con || "";
+
+
+        flooringTypeInput.value =
+            schedule.flooring_type || "";
+
+
+        scheduleTypeInput.value =
+            schedule.schedule_type || "";
+
+
+        timeInInput.value =
+            schedule.time_in || "";
+
+
+        timeOutInput.value =
+            schedule.time_out || "";
+
+
+        notesInput.value =
+            schedule.notes || "";
+
+
+
+        showPage("schedule");
+
+
+        return;
+
+    }
+
+
+
+
+    /* ==========================
+       DELETE SCHEDULE
+    ========================== */
+
+    if(target.classList.contains("delete-btn")){
+
+
+        const confirmDelete = confirm(
+            "Are you sure you want to delete this schedule?"
+        );
+
+
+        if(!confirmDelete){
+
+            return;
+
+        }
+
+
+
+        const { error } = await window.db
+            .from("schedules")
+            .delete()
+            .eq("id", id);
+
+
+
+        if(error){
+
+            console.error(
+                "Delete Error:",
+                error
+            );
+
+
+            alert(error.message);
+
+
+            return;
+
+        }
+
+
+
+        alert(
+            "Schedule deleted successfully."
+        );
+
+
+        await renderHistoryTable();
+
+        renderRecentSchedule();
+
+        updateDashboardSummary();
+
+        updateMonthlyOverview();
+
+
+    }
+
+
+});
 
 /* ==========================================================
    SECTION 11
@@ -1147,130 +1548,247 @@ async function updateTodaySchedule(){
 
     const currentUser = localStorage.getItem("currentUser");
 
-    if (!currentUser) {
+    if(!currentUser){
+
         console.log("No current user. Skip today schedule.");
+
         return;
+
     }
+
 
     const { data: schedules, error } = await window.db
         .from("schedules")
         .select("*")
         .eq("user_id", currentUser)
-        .order("date", { ascending: true });
+        .order("date", { ascending:true });
 
-if (error) {
 
-    console.error(error);
+    if(error){
 
-    return;
+        console.error(error);
 
-}
+        return;
 
-schedules.forEach(schedule => {
+    }
 
-    schedule.geneCon = schedule.gene_con;
 
-    schedule.flooringType = schedule.flooring_type;
+    schedules.forEach(schedule=>{
 
-    schedule.type = schedule.schedule_type;
+        schedule.geneCon = schedule.gene_con;
 
-    schedule.timeIn = schedule.time_in;
+        schedule.flooringType = schedule.flooring_type;
 
-    schedule.timeOut = schedule.time_out;
+        schedule.type = schedule.schedule_type;
 
-});
+        schedule.timeIn = schedule.time_in;
 
-   const now = new Date();
+        schedule.timeOut = schedule.time_out;
 
-   const today = now.getFullYear() + "-" +
-    String(now.getMonth() + 1).padStart(2, "0") + "-" +
-    String(now.getDate()).padStart(2, "0");
+    });
 
-    const todaySchedule = schedules.find(schedule => schedule.date === today);
+
+
+    const now = new Date();
+
+    const today =
+        now.getFullYear() +
+        "-" +
+        String(now.getMonth()+1).padStart(2,"0") +
+        "-" +
+        String(now.getDate()).padStart(2,"0");
+
+
+
+    const todaySchedule =
+        schedules.find(schedule =>
+            schedule.date === today
+        );
+
+
+
+    const setText = (id,value)=>{
+
+        const element =
+            document.getElementById(id);
+
+        if(element){
+
+            element.textContent = value;
+
+        }
+
+    };
+
+
+
+    const todayBadge =
+        document.querySelector(".today-badge");
+
+
+    const todayEmoji =
+        document.getElementById("todayEmoji");
+
+
 
     if(!todaySchedule){
 
-    document.getElementById("todayDate").textContent = "--";
-    document.getElementById("todayLocation").textContent = "--";
-    document.getElementById("todayBuilding").textContent = "--";
-    document.getElementById("todayEngineer").textContent = "--";
-    document.getElementById("todayGeneCon").textContent = "--";
-    document.getElementById("todayFlooringType").textContent = "--";
-    document.getElementById("todayTimeIn").textContent = "--";
-    document.getElementById("todayTimeOut").textContent = "--";
 
-    document.getElementById("todayStatus").innerHTML = "NO<br>SCHEDULE";
-    document.getElementById("todayWorkStatus").textContent = "--";
-    document.getElementById("todayEmoji").textContent = "📅";
+        setText("todayDate","--");
+        setText("todayLocation","--");
+        setText("todayBuilding","--");
+        setText("todayEngineer","--");
+        setText("todayGeneCon","--");
+        setText("todayFlooringType","--");
+        setText("todayTimeIn","--");
+        setText("todayTimeOut","--");
 
-    const todayBadge = document.querySelector(".today-badge");
+        setText("todayStatus","NO SCHEDULE");
+        setText("todayWorkStatus","--");
 
-    todayBadge.textContent = "NO SCHEDULE";
 
-    todayBadge.classList.remove(
-        "badge-work",
-        "badge-yasumi",
-        "badge-holiday"
+        if(todayEmoji){
+
+            todayEmoji.textContent="📅";
+
+        }
+
+
+        if(todayBadge){
+
+            todayBadge.textContent="NO SCHEDULE";
+
+            todayBadge.classList.remove(
+                "badge-work",
+                "badge-yasumi",
+                "badge-holiday"
+            );
+
+            todayBadge.style.background="#3A3A3A";
+            todayBadge.style.color="#D0D0D0";
+
+        }
+
+
+        return;
+
+    }
+
+
+
+
+    setText(
+        "todayDate",
+        todaySchedule.date
     );
 
-    todayBadge.style.background = "#3A3A3A";
-    todayBadge.style.color = "#D0D0D0";
+    setText(
+        "todayLocation",
+        todaySchedule.location || "--"
+    );
 
-    return;
+    setText(
+        "todayBuilding",
+        todaySchedule.building || "--"
+    );
 
-}
+    setText(
+        "todayEngineer",
+        todaySchedule.engineer || "--"
+    );
 
-    document.getElementById("todayDate").textContent = todaySchedule.date;
-    document.getElementById("todayLocation").textContent = todaySchedule.location;
-    document.getElementById("todayBuilding").textContent = todaySchedule.building;
-    document.getElementById("todayEngineer").textContent = todaySchedule.engineer;
-    document.getElementById("todayGeneCon").textContent = todaySchedule.geneCon || "--";
-    document.getElementById("todayFlooringType").textContent = todaySchedule.flooringType || "--";
-    document.getElementById("todayTimeIn").textContent =
-    todaySchedule.timeIn || "--";
+    setText(
+        "todayGeneCon",
+        todaySchedule.geneCon || "--"
+    );
 
-    document.getElementById("todayTimeOut").textContent =
-    todaySchedule.timeOut || "--";
-    document.getElementById("todayStatus").textContent = todaySchedule.type.toUpperCase();
-    document.getElementById("todayWorkStatus").textContent = todaySchedule.type;
+    setText(
+        "todayFlooringType",
+        todaySchedule.flooringType || "--"
+    );
 
-    /* CHANGE HEADER BADGE */
+    setText(
+        "todayTimeIn",
+        todaySchedule.timeIn || "--"
+    );
 
-const todayBadge = document.querySelector(".today-badge");
-todayBadge.style.background = "";
-todayBadge.style.color = "";
+    setText(
+        "todayTimeOut",
+        todaySchedule.timeOut || "--"
+    );
 
-todayBadge.textContent = todaySchedule.type.toUpperCase();
+    setText(
+        "todayStatus",
+        todaySchedule.type.toUpperCase()
+    );
 
-todayBadge.classList.remove(
-    "badge-work",
-    "badge-yasumi",
-    "badge-holiday"
-);
+    setText(
+        "todayWorkStatus",
+        todaySchedule.type
+    );
 
-const todayEmoji = document.getElementById("todayEmoji");
 
-switch(todaySchedule.type){
 
-    case "Work":
+    if(todayBadge){
 
-        todayEmoji.textContent = "💼";
-        todayBadge.classList.add("badge-work");
-        break;
+        todayBadge.style.background="";
+        todayBadge.style.color="";
 
-    case "Yasumi":
 
-        todayEmoji.textContent = "😴";
-        todayBadge.classList.add("badge-yasumi");
-        break;
+        todayBadge.textContent =
+            todaySchedule.type.toUpperCase();
 
-    case "Holiday":
 
-        todayEmoji.textContent = "🎉";
-        todayBadge.classList.add("badge-holiday");
-        break;
+        todayBadge.classList.remove(
+            "badge-work",
+            "badge-yasumi",
+            "badge-holiday"
+        );
 
-}
+
+        switch(todaySchedule.type){
+
+
+            case "Work":
+
+                if(todayEmoji)
+                    todayEmoji.textContent="💼";
+
+                todayBadge.classList.add(
+                    "badge-work"
+                );
+
+                break;
+
+
+
+            case "Yasumi":
+
+                if(todayEmoji)
+                    todayEmoji.textContent="😴";
+
+                todayBadge.classList.add(
+                    "badge-yasumi"
+                );
+
+                break;
+
+
+
+            case "Holiday":
+
+                if(todayEmoji)
+                    todayEmoji.textContent="🎉";
+
+                todayBadge.classList.add(
+                    "badge-holiday"
+                );
+
+                break;
+
+        }
+
+    }
 
 }
 
@@ -1330,44 +1848,129 @@ async function updateDashboardSummary(){
 
 async function editSchedule(event){
 
-    const id = Number(event.target.dataset.id);
+    console.log("EDIT EVENT:", event);
+    console.log("TARGET:", event.target);
+    console.log("DATASET:", event.target.dataset);
+
+
+    const button =
+        event.target.closest(".edit-btn");
+
+
+    if(!button){
+
+        console.log("Edit button not found.");
+
+        return;
+
+    }
+
+
+    const id = button.dataset.id;
+
+
+    console.log("EDIT SCHEDULE ID:", id);
+
+
+
+    if(!id){
+
+        console.log("No schedule ID.");
+
+        return;
+
+    }
+
+
 
     const { data: schedule, error } = await window.db
-    .from("schedules")
-    .select("*")
-    .eq("id", id)
-    .single();
+        .from("schedules")
+        .select("*")
+        .eq("id", id)
+        .single();
 
-if (error || !schedule) {
 
-    console.error(error);
 
-    return;
+    if(error || !schedule){
 
-}
+        console.error(
+            "Edit Schedule Error:",
+            error
+        );
 
-schedule.geneCon = schedule.gene_con;
-schedule.flooringType = schedule.flooring_type;
-schedule.type = schedule.schedule_type;
-schedule.timeIn = schedule.time_in;
-schedule.timeOut = schedule.time_out;
+        return;
 
-    editingScheduleId = id;
+    }
 
-    document.getElementById("scheduleDate").value = schedule.date;
-    document.getElementById("location").value = schedule.location;
-    document.getElementById("building").value = schedule.building;
-    document.getElementById("scheduleEngineer").value = schedule.engineer;
-    document.getElementById("scheduleGeneCon").value = schedule.geneCon || "";
-    document.getElementById("scheduleFlooringType").value = schedule.flooringType || "";
-    document.getElementById("scheduleType").value = schedule.type;
-    document.getElementById("timeIn").value = schedule.timeIn;
-    document.getElementById("timeOut").value = schedule.timeOut;
-    document.getElementById("scheduleNotes").value = schedule.notes || "";
+
+
+    schedule.geneCon =
+        schedule.gene_con;
+
+    schedule.flooringType =
+        schedule.flooring_type;
+
+    schedule.type =
+        schedule.schedule_type;
+
+    schedule.timeIn =
+        schedule.time_in;
+
+    schedule.timeOut =
+        schedule.time_out;
+
+
+
+    editingScheduleId = schedule.id;
+
+
+
+    document.getElementById("scheduleDate").value =
+        schedule.date || "";
+
+
+    document.getElementById("location").value =
+        schedule.location || "";
+
+
+    document.getElementById("building").value =
+        schedule.building || "";
+
+
+    document.getElementById("scheduleEngineer").value =
+        schedule.engineer || "";
+
+
+    document.getElementById("scheduleGeneCon").value =
+        schedule.geneCon || "";
+
+
+    document.getElementById("scheduleFlooringType").value =
+        schedule.flooringType || "";
+
+
+    document.getElementById("scheduleType").value =
+        schedule.type || "";
+
+
+    document.getElementById("timeIn").value =
+        schedule.timeIn || "";
+
+
+    document.getElementById("timeOut").value =
+        schedule.timeOut || "";
+
+
+    document.getElementById("scheduleNotes").value =
+        schedule.notes || "";
+
+
 
     updateScheduleFields();
 
-showPage("schedule");
+
+    showPage("schedule");
+
 
 }
 
