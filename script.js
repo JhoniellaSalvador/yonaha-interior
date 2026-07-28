@@ -1393,6 +1393,18 @@ if(target.classList.contains("view-note-btn")){
 
 }
 
+/* ==========================
+   EDIT SCHEDULE
+========================== */
+
+if(target.classList.contains("edit-btn")){
+
+    editSchedule(event);
+
+    return;
+
+}
+
     /* ==========================
        DELETE SCHEDULE
     ========================== */
